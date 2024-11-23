@@ -15,7 +15,7 @@ class PrioritizedEventHandler<T extends EventArgs> {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is PrioritizedEventHandler && identical(other.handler, handler);
+    return other is PrioritizedEventHandler<T> && identical(other.handler, handler);
   }
 
   @override
