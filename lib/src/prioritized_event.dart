@@ -13,6 +13,15 @@ class PrioritizedEventHandler<T extends EventArgs> {
   PrioritizedEventHandler(this.handler, [this.priority = 0]);
 
   @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is PrioritizedEventHandler && other.handler == handler;
+  }
+
+  @override
+  int get hashCode => handler.hashCode;
+
+  @override
   String toString() => '$handler (priority: $priority)';
 }
 
