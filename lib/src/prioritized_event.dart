@@ -129,8 +129,8 @@ class PrioritizedEvent<T extends EventArgs> {
   /// Important: There is no way to unsubscribe anonymous handlers
   /// (other than with [unsubscribeAll]) as there is no way to
   /// identify the handler your seeking to unsubscribe.
-  bool unsubscribe(PrioritizedEventHandler<T> handler) {
-    return _handlers.remove(handler);
+  bool unsubscribe(EventHandler<T> handler) {
+    return _handlers.remove(PrioritizedEventHandler<T>(handler));
   }
 
   /// Removes all subscribers (handlers).
