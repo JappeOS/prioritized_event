@@ -1,0 +1,11 @@
+name: prioritized_event
+description: "An extension to the `dart-event` package that adds support for handling events with different priorities."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.5.4
+
+dependencies:
+  event: ^3.1.0
+  collection: ^1.19.1
