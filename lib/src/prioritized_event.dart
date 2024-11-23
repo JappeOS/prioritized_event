@@ -49,7 +49,7 @@ class PrioritizedEventHandler<T extends EventArgs> {
 /// // outputs 37 to console
 /// ```
 class PrioritizedEvent<T extends EventArgs> {
-  int eventHandlerComparator(PrioritizedEventHandler a, PrioritizedEventHandler b) => b.priority.compareTo(a.priority);
+  int eventHandlerComparator(PrioritizedEventHandler<T> a, PrioritizedEventHandler<T> b) => b.priority.compareTo(a.priority);
 
   /// An optional name for the [PrioritizedEvent]
   final String eventName;
@@ -57,7 +57,7 @@ class PrioritizedEvent<T extends EventArgs> {
   /// The handlers (subscribers) associated with this [PrioritizedEvent]. Instantiated
   /// lazily (on demand) to reflect that an [PrioritizedEvent] may have no subscribers,
   /// and if so, should not incur the overhead of instantiating an empty [PriorityQueue].
-  late final PriorityQueue<PrioritizedEventHandler> _handlers = PriorityQueue<PrioritizedEventHandler>(eventHandlerComparator);
+  late final PriorityQueue<PrioritizedEventHandler<T>> _handlers = PriorityQueue<PrioritizedEventHandler<T>>(eventHandlerComparator);
 
   /// Constructor creates a new Event with an optional [eventName] to identify the [PrioritizedEvent].
   ///
