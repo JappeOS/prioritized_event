@@ -57,7 +57,7 @@ class PrioritizedEvent<T extends EventArgs> {
   /// The handlers (subscribers) associated with this [PrioritizedEvent]. Instantiated
   /// lazily (on demand) to reflect that an [PrioritizedEvent] may have no subscribers,
   /// and if so, should not incur the overhead of instantiating an empty [PriorityQueue].
-  late final PriorityQueue<PrioritizedEventHandler<T>> _handlers = PriorityQueue<PrioritizedEventHandler<T>>(eventHandlerComparator);
+  late final List<PrioritizedEventHandler<T>> _handlers = [];
 
   /// Constructor creates a new Event with an optional [eventName] to identify the [PrioritizedEvent].
   ///
@@ -84,6 +84,36 @@ class PrioritizedEvent<T extends EventArgs> {
   /// ```
   Type get genericType => T;
 
+  /// Internal function to add a handler to the [_handlers] list properly.
+  void _addHandler(PrioritizedEventHandler<T> handler) {
+    int _binarySearch(PrioritizedEventHandler<T> handler) {
+      int low = 0;
+      int high = _handlers.length - 1;
+
+      while (low <= high) {
+        final mid = (low + high) ~/ 2;
+        final comparison = eventHandlerComparator(handler, _handlers[mid]);
+
+        if (comparison < 0) {
+          low = mid + 1; // Move to the upper half
+        } else if (comparison > 0) {
+          high = mid - 1; // Move to the lower half
+        } else {
+          return mid; // Found exact match (rare case, for equal priority)
+        }
+      }
+
+      return low; // Return the index to insert (maintains sorted order)
+    }
+
+    final index = _binarySearch(handler);
+    if (index == -1) {
+      _handlers.add(handler); // Append if no lower-priority item is found
+    } else {
+      _handlers.insert(index, handler); // Insert at the found index
+    }
+  }
+
   /// Adds a handler (callback) that will be executed when this
   /// [PrioritizedEvent] is raised using the [broadcast] method.
   ///
@@ -92,7 +122,7 @@ class PrioritizedEvent<T extends EventArgs> {
   /// counter.onValueChanged.subscribe(PrioritizedEvent((args) => print('value changed'), 1));
   /// ```
   void subscribe(PrioritizedEventHandler<T> handler) {
-    _handlers.add(handler);
+    _addHandler(handler);
     log('Subscribed to Event "$this"', source: "Event", level: Severity.debug);
   }
 
@@ -118,7 +148,7 @@ class PrioritizedEvent<T extends EventArgs> {
   ///  sc.close();
   /// ```
   void subscribeStream(int priority, StreamSink sink) {
-    _handlers.add(PrioritizedEventHandler<T>((args) => sink.add(args), priority));
+    _addHandler(PrioritizedEventHandler<T>((args) => sink.add(args), priority));
   }
 
   /// Removes a handler previously added to this [PrioritizedEvent].
@@ -181,10 +211,10 @@ class PrioritizedEvent<T extends EventArgs> {
     args.whenOccurred = DateTime.now().toUtc();
 
     try {
-      while (_handlers.isNotEmpty) {
+      for (final handler in _handlers) {
         log('Broadcast Event "$this"', source: "Event", level: Severity.debug);
 
-        _handlers.removeFirst().handler.call(args);
+        handler.handler.call(args);
       }
     } on TypeError {
       throw ArgsError("Incorrect args being broadcast - args should be a $genericType");
