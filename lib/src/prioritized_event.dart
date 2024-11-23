@@ -10,7 +10,7 @@ class PrioritizedEventHandler<T extends EventArgs> {
   final EventHandler<T> handler;
   final int priority;
 
-  PrioritizedEventHandler(this.handler, this.priority);
+  PrioritizedEventHandler(this.handler, [this.priority = 0]);
 
   @override
   String toString() => '$handler (priority: $priority)';
